@@ -1,23 +1,18 @@
-import { useQuery } from "@tanstack/react-query";
-import { getProjects } from "./api/project.api";
+import { Routes, Route, Navigate } from "react-router-dom";
+import Login from "./pages/Login.jsx";
+import Projects from "./pages/Project.jsx";
 
-function App() {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ["projects"],
-    queryFn: getProjects,
-  });
-
-  if (isLoading) return <p>Loading...</p>;
-  if (error) return <p>Error...</p>;
+export default function App() {
+  const token = localStorage.getItem("token");
 
   return (
-    <div>
-      <h1>Projects</h1>
-      {data?.map((p) => (
-        <div key={p.id}>{p.name}</div>
-      ))}
-    </div>
+    <Routes>
+      <Route path="/login" element={<Login />} />
+
+      <Route
+        path="/"
+        element={token ? <Projects /> : <Navigate to="/login" />}
+      />
+    </Routes>
   );
 }
-
-export default App;
