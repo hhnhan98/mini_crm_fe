@@ -1,6 +1,7 @@
-import axiosClient from "./axios";
+import axios from "./axios";
 
-export const getProjects = async () => {
-  const res = await axiosClient.get("/projects");
+// GET all projects
+export const getProjectsApi = async () => {
+  const res = await axios.get("/projects");
   return res.data;
 };

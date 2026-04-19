@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { loginApi } from "../api/auth.api";
-import { setToken } from "../utils/token";
+import { AuthContext } from "../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,8 +21,11 @@ export default function Login() {
 
       const { accessToken, user } = res.data;
 
-      setToken(accessToken);
-      localStorage.setItem("user", JSON.stringify(user));
+      // 🔥 SOURCE OF TRUTH: Context
+      login({
+        token: accessToken,
+        user,
+      });
 
       navigate("/");
     } catch (err) {

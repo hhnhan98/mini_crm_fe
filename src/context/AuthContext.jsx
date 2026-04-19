@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useState, useCallback } from "react";
 
 export const AuthContext = createContext();
 
@@ -10,19 +10,21 @@ export const AuthProvider = ({ children }) => {
     return data ? JSON.parse(data) : null;
   });
 
-  const login = ({ token, user }) => {
+  const login = useCallback(({ token, user }) => {
     setToken(token);
     setUser(user);
 
     localStorage.setItem("token", token);
     localStorage.setItem("user", JSON.stringify(user));
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setToken(null);
     setUser(null);
-    localStorage.clear();
-  };
+
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+  }, []);
 
   return (
     <AuthContext.Provider value={{ token, user, login, logout }}>

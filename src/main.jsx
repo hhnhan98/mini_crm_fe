@@ -8,13 +8,16 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { queryClient } from "./lib/react-query";
 
 import { AuthProvider } from "./context/AuthContext.jsx";
+import { ProjectProvider } from "./context/ProjectContext.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <App />
+          <ProjectProvider>
+            <App />
+          </ProjectProvider>
         </AuthProvider>
       </QueryClientProvider>
     </BrowserRouter>

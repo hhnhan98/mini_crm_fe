@@ -1,18 +1,29 @@
 import { Routes, Route, Navigate } from "react-router-dom";
+import { useContext } from "react";
+
 import Login from "./pages/Login.jsx";
-import Projects from "./pages/Project.jsx";
+import Board from "./pages/Board.jsx";
+import AppLayout from "./layouts/AppLayout.jsx";
+import { AuthContext } from "./context/AuthContext";
 
 export default function App() {
-  const token = localStorage.getItem("token");
+  const { token } = useContext(AuthContext);
+
+  // 🔥 tránh undefined edge case
+  const isAuth = !!token;
 
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
+      {/* PUBLIC ROUTE */}
+      <Route path="/login" element={isAuth ? <Navigate to="/" /> : <Login />} />
 
-      <Route
-        path="/"
-        element={token ? <Projects /> : <Navigate to="/login" />}
-      />
+      {/* PRIVATE ROUTE WRAPPER */}
+      <Route element={isAuth ? <AppLayout /> : <Navigate to="/login" />}>
+        <Route path="/" element={<Board />} />
+      </Route>
+
+      {/* fallback */}
+      <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
 }
