@@ -18,7 +18,10 @@ export default function Login() {
 
       const res = await loginApi({ email, password });
 
-      setToken(res.accessToken);
+      const { accessToken, user } = res.data;
+
+      setToken(accessToken);
+      localStorage.setItem("user", JSON.stringify(user));
 
       navigate("/");
     } catch (err) {
