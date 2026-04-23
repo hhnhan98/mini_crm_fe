@@ -1,7 +1,6 @@
-import axios from "./axios";
+// src/api/project.api.js
+import axios from "../utils/axios";
 
 // GET all projects
-export const getProjectsApi = async () => {
-  const res = await axios.get("/projects");
-  return res.data;
-};
+// Không cần async/await rườm rà, trả về thẳng Promise của axios
+export const getProjectsApi = () => axios.get("/projects");
