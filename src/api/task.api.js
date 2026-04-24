@@ -1,19 +1,5 @@
 import axios from "../utils/axios";
 
-// // GET tasks by project
-// export const getTasksByProjectApi = async (projectId) => {
-//   const res = await axios.get("/tasks", {
-//     params: { projectId },
-//   });
-//   return res.data.data;
-// };
-
-// // POST create task
-// export const createTaskApi = async (payload) => {
-//   const res = await axios.post("/tasks", payload);
-//   return res.data.data;
-// };
-
 // Lấy danh sách task theo project
 export const getTasksByProjectApi = (projectId) =>
   axios.get("/tasks", { params: { projectId } });

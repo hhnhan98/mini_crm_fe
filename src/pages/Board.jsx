@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTasks } from "../hooks/useTasks";
+import { useProjectMember } from "../hooks/useProjectMember";
+import { useAuth } from "../hooks/useAuth";
 import { createTaskApi, updateTaskStatusApi } from "../api/task.api";
 import TaskModal from "../components/tasks/TaskModal";
 
@@ -9,16 +11,16 @@ const STATUS_COLUMNS = ["TODO", "IN_PROGRESS", "IN_REVIEW", "DONE"];
 
 export default function Board() {
   const { projectId } = useParams();
+  const { user } = useAuth();
+  const { data: myRole } = useProjectMember(projectId, user?.id);
   const queryClient = useQueryClient();
 
-  // Quản lý đóng/mở modal qua ID task
+  const canCreateTask = myRole === "OWNER" || myRole === "MANAGER";
+
   const [selectedTaskId, setSelectedTaskId] = useState(null);
-
   const { data: tasksResponse, isLoading } = useTasks(projectId);
-
   const tasks = useMemo(() => tasksResponse || [], [tasksResponse]);
 
-  // Chia task vào các cột dựa trên status
   const groupedTasks = useMemo(() => {
     return STATUS_COLUMNS.reduce((acc, status) => {
       acc[status] = tasks.filter((t) => t.status === status);
@@ -40,7 +42,6 @@ export default function Board() {
       alert(err.response?.data?.message || "Lỗi chuyển trạng thái"),
   });
 
-  // Quy tắc chuyển đổi trạng thái (Sync với Backend)
   const getNextActions = (current) => {
     const rules = {
       TODO: ["IN_PROGRESS"],
@@ -62,27 +63,26 @@ export default function Board() {
 
   return (
     <div className="p-6 h-screen flex flex-col bg-gray-50">
-      {/* Header: Title & Add Action */}
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold text-gray-800 tracking-tight">
           Project Board
         </h1>
-        <button
-          onClick={() =>
-            createTaskMutation.mutate({
-              title: "New Task",
-              projectId,
-              status: "TODO",
-            })
-          }
-          disabled={createTaskMutation.isPending}
-          className="px-5 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 disabled:bg-blue-300 transition-all"
-        >
-          + Thêm Task
-        </button>
+
+        {/* ✅ Chỉ OWNER/MANAGER mới thấy */}
+        {canCreateTask && (
+          <button
+            onClick={() =>
+              createTaskMutation.mutate({ title: "New Task", projectId })
+            }
+            disabled={createTaskMutation.isPending}
+            className="px-5 py-2 bg-blue-600 text-white rounded-xl text-sm font-bold hover:bg-blue-700 disabled:bg-blue-300 transition-all"
+          >
+            + Thêm Task
+          </button>
+        )}
       </div>
 
-      {/* Kanban Columns */}
+      {/* Kanban Columns — giữ nguyên */}
       <div className="flex gap-6 overflow-x-auto pb-6 flex-1 items-start">
         {STATUS_COLUMNS.map((col) => (
           <div key={col} className="w-80 flex-shrink-0 flex flex-col">
@@ -123,7 +123,7 @@ export default function Board() {
                           <button
                             key={next}
                             onClick={(e) => {
-                              e.stopPropagation(); // QUAN TRỌNG: Ngăn không cho sự kiện click lan ra Card (gây mở Modal)
+                              e.stopPropagation();
                               updateStatusMutation.mutate({
                                 taskId: task.id,
                                 status: next,
@@ -144,7 +144,6 @@ export default function Board() {
         ))}
       </div>
 
-      {/* Modal chi tiết - Chỉ render khi có ID task được chọn */}
       {selectedTaskId && (
         <TaskModal
           taskId={selectedTaskId}

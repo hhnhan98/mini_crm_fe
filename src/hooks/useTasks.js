@@ -7,6 +7,6 @@ export const useTasks = (projectId) => {
     queryFn: () => getTasksByProjectApi(projectId),
     enabled: !!projectId,
     staleTime: 1000 * 60 * 5,
-    select: (data) => data || [],
+    select: (data) => data?.data || [],
   });
 };
