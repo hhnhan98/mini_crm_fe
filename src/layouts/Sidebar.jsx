@@ -33,7 +33,7 @@ export default function Sidebar() {
       {/* LOGO */}
       <div className="p-6 border-b">
         <h1 className="font-bold text-xl text-blue-600 tracking-tight">
-          Mini CRM
+          HN CRM
         </h1>
       </div>
 
